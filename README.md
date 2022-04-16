@@ -7,6 +7,8 @@
 ## About the Loki
 Loki is a simple tcp server which can send files to multipal clients simulteniously. It serves raw TCP requests and HTTP GET requests as well which means you can use `wget`, `curl`, `axel` and such tools as a client to connect with this. You can use `netcat`/`nc`/`ncat` or you can write your own socket script to work with its raw TCP functionality. And since the Loki is made in C with pure syscalls and proper logic, you will find it really fast. Loki can be used while playing HackTheBox machines and VulnHub machines in place of a python/php HTTP server. 
 
+[![asciicast](https://asciinema.org/a/rwqMq4CAsu5U4uXMgEp1Kxx9P.svg)](https://asciinema.org/a/rwqMq4CAsu5U4uXMgEp1Kxx9P)
+
 ## Features
 - easy synthax
 - faster than any other tool
