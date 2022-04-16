@@ -273,7 +273,7 @@ void serve(void *client_st)
 void main(int argc, char* argv[])
 {
   char *creator = "[\033[35;1;1m@LuckyThandel\033[0m]";
-  char *help_synthx = "[\033[31;1;1mSynthx\033[0m] ./aka port\n";
+  char *help_synthx = "[\033[31;1;1mSynthx\033[0m] ./loki port\n";
   char *warning = "[\033[33;1;1mWarning\033[0m] default port 81\n";
   if(argc >= 2){
     printf("%s\n", creator);
