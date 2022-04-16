@@ -18,7 +18,7 @@ Loki is a simple tcp server which can send files to multipal clients simulteniou
 - easy to modify
 
 ## Compilation
-* clone it repo
+* clone the repo
 ```sh
 ❯ git clone https://github.com/luckythandel/loki.git
 ```
