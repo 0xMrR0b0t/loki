@@ -10,8 +10,9 @@
 #include "server.h"
 
 
-void free_mem(char* pointer)
+void free_mem(char* pointer, long long int l)
 {
+  memset(pointer, 0, l);
   free(pointer);
 }
 
@@ -103,7 +104,7 @@ int http_send(int client_sock, char* request)
   }
   send(client_sock, file_content, file_size, 0);
   fclose(ptr);
-  free_mem(file_content);
+  //free_mem(file_content, FILE_CONTENT_SIZE);
 }
 
 int input_validate(char* request)
@@ -129,7 +130,7 @@ int input_validate(char* request)
   return 0;
 }
 
-void my_log(char* input, int x)
+void my_log(char* request, int x)
 {
   /* `x` has multipal values
    * 1 -> FILE_OK
@@ -139,12 +140,12 @@ void my_log(char* input, int x)
   if(x == 1)
   {
     char value[100] = "[\033[32;1;1mInfo\033[0m] /";
-    printf("%s%s ~ 200 OK\n", value,input);
+    printf("%s%s ~ 200 OK\n", value,request);
   }
   else if(x == 2)
   {
     char value[100] = "[\033[31;1;1mInfo\033[0m] /";
-    printf("%s%s ~ 404 NOT FOUND\n",value, input);
+    printf("%s%s ~ 404 NOT FOUND\n",value, request);
   }
   else if(x == 3)
   {
@@ -156,7 +157,7 @@ void my_log(char* input, int x)
   ptr = fopen("./requests.log", "a");
   if(ptr == NULL)
   {
-    perror("something went wrong\n");
+    perror("something went wrong _in mylog\n");
   }
   char* time_buffer;
   time_t raw_time;
@@ -165,7 +166,7 @@ void my_log(char* input, int x)
   timeinfo = localtime(&raw_time);
   time_buffer = asctime(timeinfo);
   time_buffer[strlen(time_buffer) - 1] = ' ';
-  strcat(time_buffer, input);
+  strcat(time_buffer, request);
   if(x == 1)
     strcat(time_buffer, " ~ 200 OK\n");
   if(x == 2)
@@ -178,11 +179,7 @@ void my_log(char* input, int x)
 
 int raw_send(int client_sock, char* request)
 {
-  //remove newline from the file
-  if(request[strlen(request) - 1] == '\n') 
-    request[strlen(request) - 1] = '\0';
-  if(request[strlen(request) - 1] == '\r')
-    request[strlen(request)- 1] = '\0';
+  request = strtok(request, "\n");  //remove newline from the file
   
   if(file_exists(request) == -1)
     return 0;
@@ -207,7 +204,6 @@ int raw_send(int client_sock, char* request)
   }
   send(client_sock, file_content, file_size, 0);
   fclose(ptr);
-  free_mem(file_content);
   return 0;
 }
 
@@ -224,7 +220,7 @@ int checker(struct SERVE_THREAD THREAD)
      return -1;
   }
   
-  char *request = THREAD.request;
+  char* request = THREAD.request;
   int client_sock = THREAD.client_sock;
   char* HTTP_GET = "GET /";
 
@@ -233,6 +229,7 @@ int checker(struct SERVE_THREAD THREAD)
   
   if(!strncmp(HTTP_GET, request, strlen(HTTP_GET)))
   {
+    printf("[!] Working with HTTP!\n");
     int HTTP_METHOD_LEN = strlen(HTTP_GET);
     for(int j=0; j<HTTP_METHOD_LEN; j++)
       request = request+1;
@@ -248,8 +245,12 @@ int checker(struct SERVE_THREAD THREAD)
     http_send(client_sock, request);
     return 0;
   }
-  raw_send(client_sock, request);
-  return -1;
+  else{
+    if(raw_send(client_sock, request) == -1)
+      printf("[-] Error in raw_send\n");
+      return -1;
+  }
+  return 0;
 }
 
 void serve(void *client_st)
@@ -265,11 +266,14 @@ void serve(void *client_st)
   THREAD.client_sock = client_sock;
   if(checker(THREAD) == -1)
   {
+    free(THREAD.request);
     close(THREAD.client_sock);
   }
-  close(THREAD.client_sock);
+  else{
+    free(THREAD.request);
+    close(THREAD.client_sock);
+  }
 }
-
 void main(int argc, char* argv[])
 {
   char *creator = "[\033[35;1;1m@LuckyThandel\033[0m]";
