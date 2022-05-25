@@ -154,7 +154,7 @@ void my_log(char* request, int x)
     printf("%s malicious request\n",value);
   }
   FILE *ptr;
-  ptr = fopen("./requests.log", "a");
+  ptr = fopen("/var/log/loki_requests.log", "a");
   if(ptr == NULL)
   {
     perror("something went wrong _in mylog\n");
